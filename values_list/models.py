@@ -1,28 +1,20 @@
 import os
-import json
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch.dispatcher import receiver
 from django.conf import settings
-
 
 class List(models.Model):
     code = models.CharField(max_length=50)
     description = models.CharField(max_length=150, null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        super(List, self).save(*args, **kwargs)
-        filename = os.path.join(settings.MEDIA_ROOT, 'values_list',
-                                '%s.json' % self.code)
+@receiver(post_delete, sender=List)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
 
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
-
-        values = []
-        for value in self.values.all():
-            values.append((value.name, value.label))
-
-        with open(filename, 'wb') as outfile:
-            json.dump(values, outfile)
-
+    filename = os.path.join(settings.MEDIA_ROOT, 'values_list',
+                            '%s.json' % instance.code)
+    if os.path.isfile(filename):
+        os.unlink(filename)   
 
 class Value(models.Model):
     list = models.ForeignKey(List, related_name='values')
