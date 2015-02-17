@@ -1,8 +1,6 @@
 import os
 import json
 from django.conf import settings
-from models import List
-
 
 def get_cached_values(code):
     filename = os.path.join(settings.MEDIA_ROOT, 'values_list',
