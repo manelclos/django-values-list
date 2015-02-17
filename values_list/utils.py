@@ -2,6 +2,7 @@ import os
 import json
 from django.conf import settings
 
+
 def get_cached_values(code):
     filename = os.path.join(settings.MEDIA_ROOT, 'values_list',
                             '%s.json' % code)
